@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Голосовой и Текстовый Переводчик</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 15px;
+        }
+
+        .container {
+            background-color: #1e1e1e;
+            width: 100%;
+            max-width: 520px;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #00e676;
+        }
+
+        .lang-selects {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 10px;
+        }
+
+        .select-box {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 12px;
+            color: #a0a0a0;
+            margin-bottom: 5px;
+        }
+
+        select {
+            background-color: #2c2c2c;
+            color: #fff;
+            border: 1px solid #3d3d3d;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            width: 100%;
+        }
+
+        .voice-section {
+            margin-bottom: 20px;
+        }
+
+        .chat-box {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background-color: #2a2a2a;
+            border-radius: 12px;
+            padding: 15px;
+            position: relative;
+        }
+
+        .card-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: #00b0ff;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 75px;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 15px;
+            line-height: 1.4;
+            resize: vertical;
+            outline: none;
+        }
+
+        textarea:focus {
+            border-color: #00b0ff;
+        }
+
+        .card-text {
+            font-size: 16px;
+            min-height: 50px;
+            line-height: 1.4;
+            color: #e0e0e0;
+            word-break: break-word;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn {
+            background-color: #2979ff;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-foreign {
+            background-color: #ff9100;
+        }
+
+        .btn-translate {
+            background-color: #00b0ff;
+            color: #fff;
+        }
+
+        .btn-speak {
+            background-color: #00e676;
+            color: #000;
+        }
+
+        .btn.recording {
+            background-color: #ff1744 !important;
+            animation: pulse 1.2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        .auto-speak-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #00e676;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🎙️ Универсальный Переводчик</h1>
+
+    <div class="lang-selects">
+        <div class="select-box">
+            <label>Язык исходного текста:</label>
+            <select id="foreignLang">
+                <option value="uk-UA">Українська</option>
+                <option value="ru-RU">Русский</option>
+                <option value="en-US">English (Английский)</option>
+                <option value="de-DE">Deutsch (Немецкий)</option>
+                <option value="pl-PL">Polski (Польский)</option>
+                <option value="fr-FR">Français (Французский)</option>
+                <option value="es-ES">Español (Испанский)</option>
+                <option value="it-IT">Italiano (Итальянский)</option>
+                <option value="tr-TR">Türkçe (Турецкий)</option>
+                <option value="zh-CN">中文 (Китайский)</option>
+            </select>
+        </div>
+        <div class="select-box">
+            <label>Язык перевода:</label>
+            <select id="myLang">
+                <option value="uk-UA" selected>Українська</option>
+                <option value="ru-RU">Русский</option>
+                <option value="en-US">English (Английский)</option>
+                <option value="de-DE">Deutsch (Немецкий)</option>
+                <option value="pl-PL">Polski (Польский)</option>
+                <option value="fr-FR">Français (Французский)</option>
+                <option value="es-ES">Español (Испанский)</option>
+                <option value="it-IT">Italiano (Итальянский)</option>
+                <option value="tr-TR">Türkçe (Турецкий)</option>
+                <option value="zh-CN">中文 (Китайский)</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="select-box voice-section">
+        <label>Голос для озвучки (под язык перевода):</label>
+        <select id="voiceSelect">
+            <option value="">Загрузка голосов...</option>
+        </select>
+    </div>
+
+    <div class="chat-box">
+        <div class="card">
+            <div class="card-title">Исходный текст (надиктуйте или введите вручную)</div>
+            <textarea id="originalText" placeholder="Введите текст вручную или надиктуйте через микрофон..."></textarea>
+        </div>
+
+        <div class="card">
+            <div class="card-title" style="color: #00e676;">Перевод</div>
+            <div class="card-text" id="translatedText">Здесь появится готовый перевод...</div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="btn btn-foreign" id="listenBtn">
+            <span>🎤</span> <span id="listenBtnText">Начать запись</span>
+        </button>
+
+        <button class="btn btn-translate" id="manualTranslateBtn">
+            <span>✏️</span> Перевести текст
+        </button>
+
+        <button class="btn btn-speak" id="speakBtn">
+            <span>🔊</span> Озвучить перевод
+        </button>
+
+        <div class="auto-speak-container">
+            <input type="checkbox" id="autoSpeak" checked>
+            <label for="autoSpeak" style="margin:0; cursor:pointer;">Озвучивать перевод автоматически</label>
+        </div>
+    </div>
+</div>
+
+<script>
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+        alert("Ваш браузер не поддерживает распознавание речи. Используйте Google Chrome или Safari.");
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.interimResults = true;
+    recognition.continuous = true;
+
+    const listenBtn = document.getElementById('listenBtn');
+    const listenBtnText = document.getElementById('listenBtnText');
+    const manualTranslateBtn = document.getElementById('manualTranslateBtn');
+    const speakBtn = document.getElementById('speakBtn');
+    const originalText = document.getElementById('originalText');
+    const translatedText = document.getElementById('translatedText');
+    const foreignLang = document.getElementById('foreignLang');
+    const myLang = document.getElementById('myLang');
+    const autoSpeak = document.getElementById('autoSpeak');
+    const voiceSelect = document.getElementById('voiceSelect');
+
+    let isListening = false;
+    let finalTranscript = '';
+    let availableVoices = [];
+
+    // Умная фильтрация голосов под выбранный язык перевода
+    function populateVoiceList() {
+        availableVoices = window.speechSynthesis.getVoices();
+        if (availableVoices.length === 0) return;
+
+        voiceSelect.innerHTML = '';
+
+        // Берем код языка (например, 'ru' из 'ru-RU' или 'uk' из 'uk-UA')
+        const targetLangCode = myLang.value.split('-')[0].toLowerCase();
+
+        // Фильтруем голоса, которые поддерживают нужный язык перевода
+        let matchingVoices = availableVoices.filter(v => v.lang.toLowerCase().includes(targetLangCode));
+
+        // Если в системе нет специфичных голосов под этот язык, показываем все, чтобы приложение не осталось без звука
+        if (matchingVoices.length === 0) {
+            matchingVoices = availableVoices;
+        }
+
+        matchingVoices.forEach((voice, index) => {
+            const option = document.createElement('option');
+            // Пробуем определить тип голоса (женский/мужской по имени, если система передает)
+            let voiceType = "Голос";
+            const nameLower = voice.name.toLowerCase();
+            if (nameLower.includes('female') || nameLower.includes('elena') || nameLower.includes('victoria') || nameLower.includes('irina') || nameLower.includes('katya')) {
+                voiceType = "Женский голос";
+            } else if (nameLower.includes('male') || nameLower.includes('pavel') || nameLower.includes('alexander') || nameLower.includes('ivan')) {
+                voiceType = "Мужской голос";
+            }
+
+            option.textContent = `${index + 1}. ${voice.name} (${voiceType})`;
+            option.setAttribute('data-name', voice.name);
+            option.setAttribute('data-lang', voice.lang);
+            voiceSelect.appendChild(option);
+        });
+    }
+
+    // Загрузка голосов
+    populateVoiceList();
+    if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = populateVoiceList;
+    }
+    setTimeout(populateVoiceList, 500);
+    setTimeout(populateVoiceList, 1500);
+
+    // При изменении языка перевода список голосов мгновенно перестраивается под него
+    myLang.addEventListener('change', () => {
+        populateVoiceList();
+        if (originalText.value.trim().length > 0) {
+            translateText(originalText.value);
+        }
+    });
+
+    foreignLang.addEventListener('change', () => {
+        if (originalText.value.trim().length > 0) {
+            translateText(originalText.value);
+        }
+    });
+
+    // Кнопка микрофона
+    listenBtn.addEventListener('click', () => {
+        if (!isListening) {
+            finalTranscript = originalText.value ? originalText.value + ' ' : '';
+            recognition.lang = foreignLang.value;
+            recognition.start();
+            isListening = true;
+            listenBtn.classList.add('recording');
+            listenBtnText.textContent = "Завершить запись";
+            translatedText.textContent = "Ожидание завершения записи...";
+        } else {
+            recognition.stop();
+            resetListenButton();
+            if (originalText.value.trim().length > 0) {
+                translateText(originalText.value);
+            }
+        }
+    });
+
+    function resetListenButton() {
+        isListening = false;
+        listenBtn.classList.remove('recording');
+        listenBtnText.textContent = "Начать запись";
+    }
+
+    recognition.onresult = (event) => {
+        let interimTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+                finalTranscript += event.results[i][0].transcript + ' ';
+            } else {
+                interimTranscript += event.results[i][0].transcript;
+            }
+        }
+        originalText.value = finalTranscript + interimTranscript;
+    };
+
+    recognition.onerror = () => {
+        resetListenButton();
+    };
+
+    // Кнопка ручного перевода
+    manualTranslateBtn.addEventListener('click', () => {
+        const textToTranslate = originalText.value.trim();
+        if (textToTranslate) {
+            translateText(textToTranslate);
+        } else {
+            alert("Пожалуйста, введите текст или надиктуйте его с помощью микрофона.");
+        }
+    });
+
+    // Функция перевода
+    async function translateText(text) {
+        const sourceLang = foreignLang.value.split('-')[0];
+        const targetLang = myLang.value.split('-')[0];
+
+        translatedText.textContent = "Перевожу...";
+
+        try {
+            const response = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${sourceLang}|${targetLang}`;
+            const res = await fetch(response);
+            const data = await res.json();
+            
+            if (data.responseData) {
+                const result = data.responseData.translatedText;
+                translatedText.textContent = result;
+
+                if (autoSpeak.checked) {
+                    speakText(result);
+                }
+            } else {
+                translatedText.textContent = "Ошибка перевода.";
+            }
+        } catch (e) {
+            translatedText.textContent = "Ошибка сети при переводе.";
+        }
+    }
+
+    // Озвучка текста с выбранным голосом
+    speakBtn.addEventListener('click', () => {
+        const textToSpeak = translatedText.textContent;
+        if (textToSpeak && textToSpeak !== "Здесь появится готовый перевод..." && textToSpeak !== "Перевожу...") {
+            speakText(textToSpeak);
+        }
+    });
+
+    function speakText(text) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        
+        const selectedOption = voiceSelect.selectedOptions[0];
+        if (selectedOption && selectedOption.getAttribute('data-name')) {
+            const selectedVoiceName = selectedOption.getAttribute('data-name');
+            const voice = availableVoices.find(v => v.name === selectedVoiceName);
+            if (voice) {
+                utterance.voice = voice;
+            }
+        }
+
+        utterance.rate = 0.95;
+        window.speechSynthesis.speak(utterance);
+    }
+</script>
+
+</body>
+</html>
